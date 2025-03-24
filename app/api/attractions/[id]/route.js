@@ -8,5 +8,5 @@ export async function GET(request, { params }) {
     const [rows, fields] = await promisePool.query(`SELECT * FROM attractions WHERE id = ?`, [id]
     )
 
-    return NextResponse.json(rows[0]);
+    return NextResponse.json(rows);
 }

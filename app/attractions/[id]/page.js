@@ -1,39 +1,44 @@
-import React from 'react';
-import Link from 'next/link'; // ตรวจสอบว่า Next.js ถูกติดตั้งไว้แล้ว
+import React from 'react'
+import { 
+  Container, Card, CardActions, CardContent, CardMedia, Button, Typography
+} from '@mui/material';
 
 export async function getData(id) {
-    const res = await fetch(`http://localhost:3000/api/attractions/${id}`);
-    return res.json();
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/attractions/${id}/`)
+  if (!res.ok) {
+    throw new Error('Failed to fetch data')
+  }
+  return res.json()
 }
 
-export default async function Page({ params }) {
-    const id = params.id;
-    const data = await getData(id);
-
-    if (!data) {
-        return (
-            <div style={{ textAlign: 'center', padding: '50px' }}>
-                <p>ไม่พบข้อมูล</p>
-            </div>
-        );
-    }
-
-    return (
-        <div style={{ fontFamily: 'Arial, sans-serif', margin: '20px', padding: '20px', border: '1px solid #ddd', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
-            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                <img src={data.coverimage} alt={data.name} style={{ maxWidth: '100%', borderRadius: '8px' }} />
-            </div>
-            <h1 style={{ fontSize: '24px', color: '#333' }}>{data.name}</h1>
-            <p style={{ fontSize: '16px', color: '#555' }}>{data.detail}</p>
-            {/* เพิ่มปุ่มที่นี่ */}
-            <div style={{ marginTop: '20px', textAlign: 'center' }}>
-                <Link href="/attractions">
-                    <Link href="/attractions" style={{ padding: '10px 20px', backgroundColor: '#0070f3', color: '#fff', fontSize: '16px' }}>
-                        ไปยังหน้าแหล่งท่องเที่ยว
-                    </Link>
-
-                </Link>
-            </div>
-        </div>
-    );
+export default async function page({ params }) {
+  if (!process.env.NEXT_PUBLIC_API_URL) {
+    return null
+  }
+  const id = params.id
+  const data = await getData(id)
+  console.log(data.length)
+  return (
+    <Container maxWidth="md" sx={{ mt: 2 }}>
+      { data.length > 0 &&
+        <Card>
+          <CardContent>
+            <Typography gutterBottom variant="h5" component="div">
+              {data[0].name}
+            </Typography>
+          </CardContent>
+          <CardMedia
+            sx={{ height: 400 }}
+            image={data[0].coverimage}
+            title={data[0].name}
+          />
+          <CardContent>
+            <Typography variant="body2" color="text.secondary">
+              {data[0].detail}
+            </Typography>
+          </CardContent>
+        </Card>
+      }
+    </Container>
+  )
 }
